@@ -1,0 +1,70 @@
+<div class="main-content">
+  <div class="container-fluid">
+
+      <div class="row">
+          <div class="col-lg-12 col-md-12">
+              <div class="card">
+                  <div class="card-header card-header-tabs card-header-primary">
+                    <h4 class="card-title ">Transacciones</h4>
+
+                  </div>
+                  <div class="card-body">
+       
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class=" text-primary">
+                                <th>
+                                    ID
+                                </th>
+                                <th>
+                                    Nombre Cliente
+                                </th>
+                                <th>
+                                    Nombre Fondo
+                                </th>
+                                <th>
+                                    Estado
+                                </th>
+
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of data">
+                                    <td>
+                                        {{item.id}}
+                                    </td>
+                                    <td>
+                                        {{item.nombreCliente}}
+                                    </td>
+                                    <td>
+                                        {{item.nombreFondo}}
+                                    </td>
+                                    <td>
+                                        <!--
+                                        <button *ngIf="item.estado"   
+                                                class="btn btn-danger btn-block btn-fill"
+                                                data-toggle="modal" 
+                                                data-target="#buy">
+                                                Deshabilitar
+                                        </button>
+
+                                        <button *ngIf="!item.estado" 
+                                                class="btn btn-sucess btn-block btn-fill"
+                                                data-toggle="modal" 
+                                                data-target="#buy">
+                                                Habilitar
+                                        </button>-->
+
+                                        {{item.estado ? 'Apertura' : 'Cancelación'}}
+                                    </td>
+                                </tr>
+                               
+                            </tbody>
+                        </table>
+                    </div>
+
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

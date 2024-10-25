@@ -1,0 +1,79 @@
+<div class="main-content">
+  <div class="container-fluid">
+      <div class="row">
+          <div class="col-md-12">
+              <div class="card">
+                  <div class="card-header card-header-primary">
+                      <h4 class="card-title ">Fondos</h4>
+                  </div>
+                  <div class="card-body">
+                      <div class="table-responsive">
+                          <table class="table">
+                              <thead class=" text-primary">
+                                  <th>
+                                    ID
+                                  </th>
+                                  <th>
+                                    Nombre Cliente
+                                  </th>
+                                  <th>
+                                    Fondo
+                                  </th>
+                                  <th>
+                                    Monto Minimo
+                                  </th>
+                                  <th>
+                                    Monto Inversion
+                                  </th>
+                                  <th>
+                                      Estado
+                                  </th>
+
+                              </thead>
+                              <tbody>
+                                <tr *ngFor="let item of data; index as i">
+                                    <td>
+                                          {{i+1}}
+                                      </td>
+                                      <td>
+                                          {{item.nombreCliente}}
+                                      </td>
+                                      <td>
+                                          {{item.fondoCliente}}
+                                      </td>
+                                      <td>
+                                        {{item.montoMinimo??'0'}}
+                                      </td>
+                                      <td>
+                                        {{item.montoInversion??'0'}}
+                                      </td>
+                                      <td>
+                                          <button *ngIf="item.estado"   
+                                                class="btn btn-danger btn-block btn-fill"
+                                                (click)="gestionarClienteProducto(item )"
+                                                style="min-width: 140px;"
+                                                >
+                                                Cancelar
+                                        </button>
+
+                                        <button *ngIf="!item.estado" 
+                                                class="btn btn-success btn-block btn-fill"
+                                                (click)="gestionarClienteProducto(item )"
+                                                style="min-width: 140px;"
+                                                >
+                                                Aperturar
+                                        </button>
+
+                                      </td>
+                                  </tr>
+                                 
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+  </div>
+</div>
