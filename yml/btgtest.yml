@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'BTG Test'
+
+Parameters:
+
+  EnvironmentName:
+    Type: String
+    Default: btg-test-cloud
+    Description: Name of the environment
+
+  PublicSubnet1:
+    Type: String
+    Default: subnet-0ee82e883cc71fdb4
+    Description: Name subnet
+
+  VPCSecurityGroup: 
+    Type: String
+    Default: sg-089742e37d64e42df
+    Description: Name subnet
+
+  ImageId:
+    Type: String
+    Default: ami-050cd642fd83388e4
+    Description: Image ID
+
+  KeyPairName:
+    Type: String
+    Default: Mac Andres Nova
+    Description: Key ID
+  
+  VPC:
+    Type: String
+    Default: vpc-081e67a146d1f6485
+    Description: VPC ID
+  
+  GmailEmail:
+    Type: String
+    Default: jahir.nova@pragma.com.co
+    Description: La dirección de correo electrónico de Gmail que se va a verificar.
+
+Resources:
+
+  MyEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: t2.micro
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref VPCSecurityGroup
+      KeyName: !Ref KeyPairName
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 10
+            VolumeType: gp2
+            
+  MyS3:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${EnvironmentName}-btg-frontend
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: ObjectWriter
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      VersioningConfiguration:
+        Status: Enabled
+
+
+  MyS3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref MyS3
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Join ['', ['arn:aws:s3:::', !Ref MyS3, '/*']]
+      
+  MyCloudWatchLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub ${EnvironmentName}-loggroup
+      RetentionInDays: 7
+
+  SESEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref GmailEmail
+          
+  MySNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${EnvironmentName}-sns
+      TopicName: !Sub ${EnvironmentName}-sn
+
+  MyEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: MyEC2Policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                  - sns:Subscribe
+                  - sns:Unsubscribe
+                  - sns:ListTopics
+                  - sns:GetTopicAttributes
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  MyEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref MyEC2Role
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt MyS3.WebsiteURL
+    Description: URL for website hosted on S3
